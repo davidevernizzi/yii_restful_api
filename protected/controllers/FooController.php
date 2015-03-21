@@ -1,6 +1,6 @@
 <?php
 
-class FooController extends Controller
+class FooController extends ApiController
 {
 	/**
 	 * Declares class-based actions.
@@ -32,14 +32,9 @@ class FooController extends Controller
         echo 'GET';
 	}
 
-    public function actionCreate()
-    {
-        echo 'POST';
-    }
-
     public function actionUpdate()
     {
-        echo 'PUT';
+        echo $this->error('404', 'Method not available');
     }
 
     public function actionDelete()
