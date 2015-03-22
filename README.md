@@ -11,6 +11,7 @@ A simple REST API written with Yii 1.1.x
   * `../vendor/bin/phpunit unit/`
 
 # TODO
+* create table for api tokens
 * API Authentication
   * Get token out of band
   * Get token through username/password (see http://aaronparecki.com/articles/2012/07/29/1/oauth2-simplified @ Authorization/Other/Password)
