@@ -55,4 +55,9 @@ class ApiTest extends CDbTestCase  {
         $this->assertEquals($output, $expected_json);
     }
 
+    public function testAuthenticationDigest()
+    {
+
+    }
+
 }
