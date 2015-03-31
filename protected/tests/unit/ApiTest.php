@@ -1,4 +1,5 @@
 <?php
+
 class ApiCall {
     private static $apiUrl = 'http://192.168.56.101/yii_restful_api/index-test.php/';
 
@@ -53,7 +54,17 @@ class ApiTest extends CDbTestCase  {
         $this->assertEquals($output, $expected_json);
     }
 
-    public function testAuthenticationDigest()
+    public function testAuthenticationDigestCreation_OK()
+    {
+
+    }
+
+    public function testAuthenticationDigestCreation_KO()
+    {
+
+    }
+
+    public function testAuthenticationAPI_OK()
     {
 
     }
