@@ -35,11 +35,9 @@ class ApiCall {
 
 
 class ApiTest extends CDbTestCase  {
-    /*
     public $fixtures=array(
                 'tokens' => 'RestTokens',
             );
-     */
 
     public function setUp() 
     {
