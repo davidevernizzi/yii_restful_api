@@ -2,6 +2,9 @@
 
 class ApiController extends Controller
 {
+    private $content;
+    private $data;
+
     private function getContent()
     {
         if (null === $this->content)
@@ -33,18 +36,19 @@ class ApiController extends Controller
         }
 
         $headers =  apache_request_headers();
-        echo $headers['Authorization'];
+        //echo $headers['Authorization'];
 
         /* TODO:
          * 0. fetch secret from tbl_api_token
          * 1. compute hash of the request
          * 2. match hash with header hash
          * 3. verify timestamp
-         * 4. veri
         /*
         var_dump($headers);
         var_dump($_SERVER);
          */
+
+        return true;
     }
 	public function actionIndex()
 	{

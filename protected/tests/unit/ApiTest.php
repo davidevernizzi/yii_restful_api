@@ -54,9 +54,19 @@ class ApiTest extends CDbTestCase  {
         $this->assertEquals($output, $expected_json);
     }
 
-    public function testAuthenticationDigestCreation_OK()
+    public function testAuthenticationHmacCreation_OK()
     {
+        $hmac = Hmac::create('12345', 'XXX', array('FOO' => '2', 'bar' => 1));
+        $this->assertEquals($hmac, '27ce2f86a19e57e4167a30f5e7bbc29fec869900');
 
+        $hmac = Hmac::verify('8d882e0f2a73fbbbe6884cebae866871382fa364', '12345', 'XXX', array('FOO' => '2', 'bar' => 1), 'POST');
+        $this->assertTrue($hmac);
+
+        $hmac = Hmac::verify('7d882e0f2a73fbbbe6884cebae866871382fa364', '12345', 'XXX', array('FOO' => '2', 'bar' => 1), 'POST');
+        $this->assertFalse($hmac);
+
+        $hmac = Hmac::verify('8d882e0f2a73fbbbe6884cebae866871382fa364', '12345', 'yyy', array('FOO' => '2', 'bar' => 1), 'POST');
+        $this->assertFalse($hmac);
     }
 
     public function testAuthenticationDigestCreation_KO()
