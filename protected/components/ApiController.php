@@ -18,6 +18,8 @@ class ApiController extends Controller
         return $this->content;
     }
 
+    // TODO: handle recursive JSON objects
+    // TODO: handle non-JSON API
     protected function beforeAction($action)
     {
         switch($_SERVER['REQUEST_METHOD']) {
@@ -35,18 +37,22 @@ class ApiController extends Controller
             break;
         }
 
+        // TODO: refactor below
         $headers =  apache_request_headers();
-        //echo $headers['Authorization'];
+        $timestamp = $headers['Timestamp'];
+        $auth = array();
+        preg_match('/^hmac ([^:]*):([^:]*)$/', $headers['Authorization'], $auth);
+        $secret = 'xxx'; // TODO: fetch secret from tbl_api_token using $auth[1] as search criteria
+        $hmac = $auth[2];
+        $resource = $_SERVER['REQUEST_METHOD'] . Yii::app()->controller->id;
 
-        /* TODO:
-         * 0. fetch secret from tbl_api_token
-         * 1. compute hash of the request
-         * 2. match hash with header hash
-         * 3. verify timestamp
-        /*
-        var_dump($headers);
-        var_dump($_SERVER);
-         */
+        if(!Hmac::verify($hmac, $timestamp, $secret, $this->data, $resource)) {
+            http_response_code(401);
+            echo "{401: 'Unauthorized'}";
+            return false;
+        }
+        
+        // TODO: verify timestamp
 
         return true;
     }

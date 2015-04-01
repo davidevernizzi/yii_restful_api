@@ -6,14 +6,19 @@ class Hmac extends CComponent
 
     public static function create($timestamp, $secret, $params, $verb='')
     {
-        ksort($params);
         $str = $secret . $verb;
 
-        foreach($params as $key=>$value) {
-            $str .= strtolower($key) . '=' . $value;
+        if($params != null) {
+            ksort($params);
+
+            foreach($params as $key=>$value) {
+                $str .= strtolower($key) . '=' . $value;
+            }
         }
 
         $str .= $timestamp;
+        
+        echo $str . ' -- ';
 
         return sha1($str);
     }
