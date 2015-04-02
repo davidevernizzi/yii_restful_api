@@ -20,10 +20,14 @@ A simple REST API written with Yii 1.1.x
   * FB ?
   * Twitter ?
   * Yii usergroups ?
+* Log
+  * All calls with params + response
+  * Last usage
 * API Token namagement
   * CRUD
   * Expiration
 * Consider using HAL http://stateless.co/hal_specification.html
+
 
 # References
 * Quick description of OAuth: http://aaronparecki.com/articles/2012/07/29/1/oauth2-simplified

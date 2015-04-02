@@ -2,6 +2,11 @@
 
 class ApiController extends Controller
 {
+    const OK = 0;
+    const TIMEOUT = -1;
+    const BAD_AUTH_HEADER = -2;
+    const BAD_HMAC = -3;
+
     private $content;
     private $data;
 
@@ -51,7 +56,7 @@ class ApiController extends Controller
     private function isAuthorised($headers)
     {
         if(!$this->isOnTime($headers)) {
-            return false;
+            return self::TIMEOUT;
         }
 
         $timestamp = $this->getTimestamp($headers);
@@ -59,16 +64,16 @@ class ApiController extends Controller
         preg_match('/^hmac ([^:]*):([^:]*)$/', $headers['Authorization'], $auth);
         $resource = $_SERVER['REQUEST_METHOD'] . Yii::app()->controller->id;
         if (!is_array($auth) || count($auth) != 3) {
-            return -1;
+            return self::BAD_AUTH_HEADER;
         }
-        $restToken = RestTokens::model()->findByAttributes(array('client_id'=>$auth[1]));
+        $restToken = RestTokens::model()->findByAttributes(array('client_id'=>$auth[1])); // TODO: check if api_key is still active
         $secret = $restToken->client_secret;
         $hmac = $auth[2];
         if(!Hmac::verify($hmac, $timestamp, $secret, $this->data, $resource)) {
-            return -2;
+            return self::BAD_HMAC;
         }
 
-        return 0;
+        return self::OK;
     }
 
     // TODO: handle recursive JSON objects
@@ -97,17 +102,17 @@ class ApiController extends Controller
         }
 
         switch ($this->isAuthorised($headers)) {
-        case 0:
+        case self::OK:
             break;
-        case OUT_OF_TIME;
+        case self::TIMEOUT:
             echo ApiResponse::error('401', 'Unauthorized');
             return false;
             break;
-        case -1:
+        case self::BAD_AUTH_HEADER :
             echo ApiResponse::error('400', 'Bad Request');
             return false;
             break;
-        case -2:
+        case self::BAD_HMAC:
             echo ApiResponse::error('401', 'Unauthorized');
             return false;
             break;
