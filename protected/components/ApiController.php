@@ -41,11 +41,11 @@ class ApiController extends Controller
         // Get headers
         $headers =  apache_request_headers();
         if (!isset($headers['Authorization'])) {
-            echo $this->error('400', 'Bad Request');
+            echo ApiResponse::error('400', 'Bad Request');
             return false;
         }
         if (!isset($headers['Timestamp'])) {
-            echo $this->error('400', 'Bad Request');
+            echo ApiResponse::error('400', 'Bad Request');
             return false;
         }
 
@@ -53,7 +53,7 @@ class ApiController extends Controller
         $timestamp = $headers['Timestamp'];
         $allowedWindow = 3600; // 1 hour. TODO: get this from config
         if(abs($timestamp - time()) > $allowedWindow) {
-            echo $this->error('401', 'Unauthorized');
+            echo ApiResponse::error('401', 'Unauthorized');
             return false;
         }
 
@@ -62,13 +62,13 @@ class ApiController extends Controller
         preg_match('/^hmac ([^:]*):([^:]*)$/', $headers['Authorization'], $auth);
         $resource = $_SERVER['REQUEST_METHOD'] . Yii::app()->controller->id;
         if (!is_array($auth) || count($auth) != 3) {
-            echo $this->error('400', 'Bad Request');
+            echo ApiResponse::error('400', 'Bad Request');
             return false;
         }
         $secret = 'xxx'; // TODO: fetch secret from tbl_api_token using $auth[1] as search criteria
         $hmac = $auth[2];
         if(!Hmac::verify($hmac, $timestamp, $secret, $this->data, $resource)) {
-            echo $this->error('401', 'Unauthorized');
+            echo ApiResponse::error('401', 'Unauthorized');
             return false;
         }
         
@@ -76,31 +76,21 @@ class ApiController extends Controller
     }
 	public function actionIndex()
 	{
-        echo $this->error('501', 'Not Implemented');
+        echo ApiResponse::error('501', 'Not Implemented');
 	}
 
     public function actionCreate()
     {
-        echo $this->error('501', 'Not Implemented');
+        echo ApiResponse::error('501', 'Not Implemented');
     }
 
     public function actionUpdate()
     {
-        echo $this->error('501', 'Not Implemented');
+        echo ApiResponse::error('501', 'Not Implemented');
     }
 
     public function actionDelete()
     {
-        echo $this->error('501', 'Not Implemented');
-    }
-
-    //TODO: move this into a proper class for response
-    public function error($errorCode='', $errorMessage='Generic error')
-    {
-        http_response_code($errorCode);
-        return CJSON::encode(array(
-            'code' => $errorCode,
-            'error' => $errorMessage,
-        ));
+        echo ApiResponse::error('501', 'Not Implemented');
     }
 }
