@@ -38,22 +38,40 @@ class ApiController extends Controller
         }
 
         // TODO: refactor below
+        // Get headers
         $headers =  apache_request_headers();
+        if (!isset($headers['Authorization'])) {
+            echo $this->error('400', 'Bad Request');
+            return false;
+        }
+        if (!isset($headers['Timestamp'])) {
+            echo $this->error('400', 'Bad Request');
+            return false;
+        }
+
+        // Check timestamp
         $timestamp = $headers['Timestamp'];
+        $allowedWindow = 3600; // 1 hour. TODO: get this from config
+        if(abs($timestamp - time()) > $allowedWindow) {
+            echo $this->error('401', 'Unauthorized');
+            return false;
+        }
+
+        // Check HMAC
         $auth = array();
         preg_match('/^hmac ([^:]*):([^:]*)$/', $headers['Authorization'], $auth);
+        $resource = $_SERVER['REQUEST_METHOD'] . Yii::app()->controller->id;
+        if (!is_array($auth) || count($auth) != 3) {
+            echo $this->error('400', 'Bad Request');
+            return false;
+        }
         $secret = 'xxx'; // TODO: fetch secret from tbl_api_token using $auth[1] as search criteria
         $hmac = $auth[2];
-        $resource = $_SERVER['REQUEST_METHOD'] . Yii::app()->controller->id;
-
         if(!Hmac::verify($hmac, $timestamp, $secret, $this->data, $resource)) {
-            http_response_code(401);
-            echo "{401: 'Unauthorized'}";
+            echo $this->error('401', 'Unauthorized');
             return false;
         }
         
-        // TODO: verify timestamp
-
         return true;
     }
 	public function actionIndex()
@@ -76,6 +94,7 @@ class ApiController extends Controller
         echo $this->error('501', 'Not Implemented');
     }
 
+    //TODO: move this into a proper class for response
     public function error($errorCode='', $errorMessage='Generic error')
     {
         http_response_code($errorCode);

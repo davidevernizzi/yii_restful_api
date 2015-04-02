@@ -18,8 +18,6 @@ class Hmac extends CComponent
 
         $str .= $timestamp;
         
-        echo $str . ' -- ';
-
         return sha1($str);
     }
 
