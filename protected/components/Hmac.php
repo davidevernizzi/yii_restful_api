@@ -17,13 +17,14 @@ class Hmac extends CComponent
         }
 
         $str .= $timestamp;
-        
+
         return sha1($str);
     }
 
     public static function verify($hmac, $timestamp, $secret, $params, $verb='')
     {
         $computed_hmac = self::create($timestamp, $secret, $params, $verb);
+
         if ($computed_hmac === $hmac) {
             return true;
         }

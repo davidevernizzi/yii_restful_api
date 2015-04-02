@@ -115,18 +115,30 @@ class ApiTest extends CDbTestCase  {
     {
         $expected_json = '{"code":"501","error":"Not Implemented"}';
 
+        $token = $this->tokens('token1');
+
         $timestamp = time();
         $params = '';
-        $hmac = Hmac::create($timestamp, 'xxx', $params, 'POSTfoo');
-        $auth = "hmac johndoe:$hmac";
+        $hmac = Hmac::create($timestamp, $token->client_secret, $params, 'POSTfoo');
+        $auth = "hmac " . $token->client_id . ":$hmac";
 
         $output = ApiCall::post('foo', $params, array('Authorization' => $auth, 'Timestamp' => $timestamp));
 
         $this->assertEquals($output, $expected_json);
         
         $params = array('key1'=>'value1', 'key2'=>'value2');
-        $hmac = Hmac::create($timestamp, 'xxx', $params, 'POSTfoo');
-        $auth = "hmac johndoe:$hmac";
+        $hmac = Hmac::create($timestamp, $token->client_secret, $params, 'POSTfoo');
+        $auth = "hmac " . $token->client_id . ":$hmac";
+
+        $output = ApiCall::post('foo', $params, array('Authorization' => $auth, 'Timestamp' => $timestamp));
+
+        $this->assertEquals($output, $expected_json);
+
+        $token = $this->tokens('token3');
+
+        $params = array('key1'=>'value1', 'key2'=>'value2');
+        $hmac = Hmac::create($timestamp, $token->client_secret, $params, 'POSTfoo');
+        $auth = "hmac " . $token->client_id . ":$hmac";
 
         $output = ApiCall::post('foo', $params, array('Authorization' => $auth, 'Timestamp' => $timestamp));
 

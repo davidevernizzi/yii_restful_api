@@ -18,6 +18,59 @@ class ApiController extends Controller
         return $this->content;
     }
 
+    private function getHeaders()
+    {
+        $headers =  apache_request_headers();
+        if (!isset($headers['Authorization'])) {
+            return null;
+        }
+        if (!isset($headers['Timestamp'])) {
+            return null;
+        }
+
+        return $headers;
+    }
+
+    private function getTimestamp($headers)
+    {
+        return $headers['Timestamp'];
+    }
+
+    private function isOnTime($headers)
+    {
+        $timestamp = $this->getTimestamp($headers);
+        
+        $allowedWindow = 3600; // 1 hour. TODO: get this from config
+        if(abs($timestamp - time()) > $allowedWindow) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private function isAuthorised($headers)
+    {
+        if(!$this->isOnTime($headers)) {
+            return false;
+        }
+
+        $timestamp = $this->getTimestamp($headers);
+        $auth = array();
+        preg_match('/^hmac ([^:]*):([^:]*)$/', $headers['Authorization'], $auth);
+        $resource = $_SERVER['REQUEST_METHOD'] . Yii::app()->controller->id;
+        if (!is_array($auth) || count($auth) != 3) {
+            return -1;
+        }
+        $restToken = RestTokens::model()->findByAttributes(array('client_id'=>$auth[1]));
+        $secret = $restToken->client_secret;
+        $hmac = $auth[2];
+        if(!Hmac::verify($hmac, $timestamp, $secret, $this->data, $resource)) {
+            return -2;
+        }
+
+        return 0;
+    }
+
     // TODO: handle recursive JSON objects
     // TODO: handle non-JSON API
     protected function beforeAction($action)
@@ -37,38 +90,29 @@ class ApiController extends Controller
             break;
         }
 
-        // TODO: refactor below
-        // Get headers
-        $headers =  apache_request_headers();
-        if (!isset($headers['Authorization'])) {
-            echo ApiResponse::error('400', 'Bad Request');
-            return false;
-        }
-        if (!isset($headers['Timestamp'])) {
+        $headers = $this->getHeaders();
+        if ($headers == null) {
             echo ApiResponse::error('400', 'Bad Request');
             return false;
         }
 
-        // Check timestamp
-        $timestamp = $headers['Timestamp'];
-        $allowedWindow = 3600; // 1 hour. TODO: get this from config
-        if(abs($timestamp - time()) > $allowedWindow) {
+        switch ($this->isAuthorised($headers)) {
+        case 0:
+            break;
+        case OUT_OF_TIME;
             echo ApiResponse::error('401', 'Unauthorized');
             return false;
-        }
-
-        // Check HMAC
-        $auth = array();
-        preg_match('/^hmac ([^:]*):([^:]*)$/', $headers['Authorization'], $auth);
-        $resource = $_SERVER['REQUEST_METHOD'] . Yii::app()->controller->id;
-        if (!is_array($auth) || count($auth) != 3) {
+            break;
+        case -1:
             echo ApiResponse::error('400', 'Bad Request');
             return false;
-        }
-        $secret = 'xxx'; // TODO: fetch secret from tbl_api_token using $auth[1] as search criteria
-        $hmac = $auth[2];
-        if(!Hmac::verify($hmac, $timestamp, $secret, $this->data, $resource)) {
+            break;
+        case -2:
             echo ApiResponse::error('401', 'Unauthorized');
+            return false;
+            break;
+        default:
+            echo ApiResponse::error('400', 'Bad Request');
             return false;
         }
         

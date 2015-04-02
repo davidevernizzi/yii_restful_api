@@ -2,8 +2,8 @@
 
 return array(
     'token1' => array(
-        'client_id' => 'CLIENT1',
-        'client_secret' => 'SECRET1',
+        'client_id' => 'johndoe',
+        'client_secret' => 'xyz',
         'user_id' => 1,
     ),
     'token3' => array(
