@@ -2,7 +2,7 @@
 A simple REST API written with Yii 1.1.x
 
 # Installation
-0. Install a LAMP environment with composer
+0. Install a LAMP environment and composer
 1. `git clone`
 2. `cd protected`
 3. `composer install`
@@ -15,7 +15,6 @@ A simple REST API written with Yii 1.1.x
 * API Authentication
   * Get token out of band
   * Get token through username/password (see http://aaronparecki.com/articles/2012/07/29/1/oauth2-simplified @ Authorization/Other/Password)
-  * Auth actual handle
 * Client signup/login
   * Google+
   * FB ?
