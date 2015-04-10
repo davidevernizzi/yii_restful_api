@@ -129,7 +129,8 @@ class ApiController extends Controller
         // TODO: get mockups directory from config
         $filename = Yii::app()->basePath . '/mockups/' . Yii::app()->controller->id . '_' . Yii::app()->controller->action->id;
         if (file_exists($filename)) {
-            echo file_get_contents($filename);
+            $mockStr = file_get_contents($filename);
+            echo $mockStr;
         }
         else {
             echo ApiResponse::error('501', 'Not Implemented');

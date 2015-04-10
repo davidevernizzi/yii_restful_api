@@ -13,7 +13,6 @@ class ApiCall {
         }
         $apiUrl = self::$apiUrl;
         $cmd = "curl $headerStr '$apiUrl$resource/$payload' 2> /dev/null";
-        echo $cmd;
         $output = shell_exec($cmd);
         return $output;
     }
@@ -160,15 +159,23 @@ class ApiTest extends CDbTestCase  {
 
         $timestamp = time();
         $params = '';
-        $hmac = Hmac::create($timestamp, $token->client_secret, $params, 'POSTfoo');
-        $auth = "hmac " . $token->client_id . ":$hmac";
 
-        $expected_res = 'BAR INDEX';
+        $hmac = Hmac::create($timestamp, $token->client_secret, $params, 'GETbar');
+        $auth = "hmac " . $token->client_id . ":$hmac";
+        $expected_res = "BAR INDEX\n";
         $output = ApiCall::get('bar', $params, array('Authorization' => $auth, 'Timestamp' => $timestamp));
         $this->assertEquals($output, $expected_res);
 
-        $expected_res = 'BAR UPDATE';
+        $hmac = Hmac::create($timestamp, $token->client_secret, $params, 'POSTbar');
+        $auth = "hmac " . $token->client_id . ":$hmac";
+        $expected_res = '{"code":"501","error":"Not Implemented"}';
         $output = ApiCall::post('bar', $params, array('Authorization' => $auth, 'Timestamp' => $timestamp));
+        $this->assertEquals($output, $expected_res);
+
+        $hmac = Hmac::create($timestamp, $token->client_secret, $params, 'PUTbar');
+        $auth = "hmac " . $token->client_id . ":$hmac";
+        $expected_res = "BAR UPDATE\n";
+        $output = ApiCall::put('bar', $params, array('Authorization' => $auth, 'Timestamp' => $timestamp));
         $this->assertEquals($output, $expected_res);
     }
 
