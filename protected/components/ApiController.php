@@ -123,6 +123,19 @@ class ApiController extends Controller
         
         return true;
     }
+
+    protected function mock()
+    {
+        // TODO: get mockups directory from config
+        $filename = Yii::app()->basePath . '/mockups/' . Yii::app()->controller->id . '_' . Yii::app()->controller->action->id;
+        if (file_exists($filename)) {
+            echo file_get_contents($filename);
+        }
+        else {
+            echo ApiResponse::error('501', 'Not Implemented');
+        }
+    }
+
 	public function actionIndex()
 	{
         echo ApiResponse::error('501', 'Not Implemented');

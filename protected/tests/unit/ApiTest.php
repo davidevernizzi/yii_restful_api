@@ -3,9 +3,17 @@
 class ApiCall {
     private static $apiUrl = 'http://192.168.56.101/yii_restful_api/index-test.php/';
 
-    public static function get($resource, $payload='')
+    public static function get($resource, $payload='', $header='')
     {
-        $cmd = "curl '$apiUrl$resource/$payload' 2> /dev/null";
+        $headerStr = "-H 'Content-Type: application/json'";
+        if (is_array($header)) {
+            foreach($header as $key => $value) {
+                $headerStr .= " -H '$key: $value'";
+            }
+        }
+        $apiUrl = self::$apiUrl;
+        $cmd = "curl $headerStr '$apiUrl$resource/$payload' 2> /dev/null";
+        echo $cmd;
         $output = shell_exec($cmd);
         return $output;
     }
@@ -143,6 +151,25 @@ class ApiTest extends CDbTestCase  {
         $output = ApiCall::post('foo', $params, array('Authorization' => $auth, 'Timestamp' => $timestamp));
 
         $this->assertEquals($output, $expected_json);
+    }
+
+    public function testMockups()
+    {
+
+        $token = $this->tokens('token1');
+
+        $timestamp = time();
+        $params = '';
+        $hmac = Hmac::create($timestamp, $token->client_secret, $params, 'POSTfoo');
+        $auth = "hmac " . $token->client_id . ":$hmac";
+
+        $expected_res = 'BAR INDEX';
+        $output = ApiCall::get('bar', $params, array('Authorization' => $auth, 'Timestamp' => $timestamp));
+        $this->assertEquals($output, $expected_res);
+
+        $expected_res = 'BAR UPDATE';
+        $output = ApiCall::post('bar', $params, array('Authorization' => $auth, 'Timestamp' => $timestamp));
+        $this->assertEquals($output, $expected_res);
     }
 
 }
