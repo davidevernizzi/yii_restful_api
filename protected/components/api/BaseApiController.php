@@ -1,6 +1,6 @@
 <?php
 
-class ApiController extends Controller
+class BaseApiController extends Controller
 {
     const OK = 0;
     const TIMEOUT = -1;
@@ -9,6 +9,7 @@ class ApiController extends Controller
 
     private $content;
     private $data;
+    private $headers;
 
     private function getContent()
     {
@@ -95,33 +96,13 @@ class ApiController extends Controller
             break;
         }
 
-        $headers = $this->getHeaders();
-        if ($headers == null) {
+        $this->headers = $this->getHeaders();
+        if ($this->headers == null) {
             echo ApiResponse::error('400', 'Bad Request');
             return false;
         }
 
-        switch ($this->isAuthorised($headers)) {
-        case self::OK:
-            break;
-        case self::TIMEOUT:
-            echo ApiResponse::error('401', 'Unauthorized');
-            return false;
-            break;
-        case self::BAD_AUTH_HEADER :
-            echo ApiResponse::error('400', 'Bad Request');
-            return false;
-            break;
-        case self::BAD_HMAC:
-            echo ApiResponse::error('401', 'Unauthorized');
-            return false;
-            break;
-        default:
-            echo ApiResponse::error('400', 'Bad Request');
-            return false;
-        }
-        
-        return true;
+        return parent::beforeAction($action);
     }
 
     protected function mock()
