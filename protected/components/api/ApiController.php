@@ -7,35 +7,6 @@ class ApiController extends BaseApiController
     const BAD_AUTH_HEADER = -2;
     const BAD_HMAC = -3;
 
-    private $content;
-    private $data;
-
-    private function getContent()
-    {
-        if (null === $this->content)
-        {
-            if (0 === strlen(($this->content = file_get_contents('php://input'))))
-            {
-                $this->content = false;
-            }
-        }
-
-        return $this->content;
-    }
-
-    private function getHeaders()
-    {
-        $headers =  apache_request_headers();
-        if (!isset($headers['Authorization'])) {
-            return null;
-        }
-        if (!isset($headers['Timestamp'])) {
-            return null;
-        }
-
-        return $headers;
-    }
-
     private function getTimestamp($headers)
     {
         return $headers['Timestamp'];
@@ -80,29 +51,6 @@ class ApiController extends BaseApiController
     // TODO: handle non-JSON API
     protected function beforeAction($action)
     {
-        /*
-        switch($_SERVER['REQUEST_METHOD']) {
-        case 'GET':
-            $this->data = $_GET;
-            break;
-        case 'POST':
-            $this->data = CJSON::decode($this->getContent());
-            break;
-        case 'DELETE':
-            $this->data = CJSON::decode($this->getContent());
-            break;
-        case 'PUT':
-            $this->data = CJSON::decode($this->getContent());
-            break;
-        }
-
-        $headers = $this->getHeaders();
-        if ($headers == null) {
-            echo ApiResponse::error('400', 'Bad Request');
-            return false;
-        }
-         */
-
         if (!parent::beforeAction($action)) {
             return false;
         }

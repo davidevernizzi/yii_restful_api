@@ -8,8 +8,8 @@ class BaseApiController extends Controller
     const BAD_HMAC = -3;
 
     private $content;
-    private $data;
-    private $headers;
+    protected $data;
+    protected $headers;
 
     private function getContent()
     {
@@ -35,46 +35,6 @@ class BaseApiController extends Controller
         }
 
         return $headers;
-    }
-
-    private function getTimestamp($headers)
-    {
-        return $headers['Timestamp'];
-    }
-
-    private function isOnTime($headers)
-    {
-        $timestamp = $this->getTimestamp($headers);
-        
-        $allowedWindow = 3600; // 1 hour. TODO: get this from config
-        if(abs($timestamp - time()) > $allowedWindow) {
-            return false;
-        }
-
-        return true;
-    }
-
-    private function isAuthorised($headers)
-    {
-        if(!$this->isOnTime($headers)) {
-            return self::TIMEOUT;
-        }
-
-        $timestamp = $this->getTimestamp($headers);
-        $auth = array();
-        preg_match('/^hmac ([^:]*):([^:]*)$/', $headers['Authorization'], $auth);
-        $resource = $_SERVER['REQUEST_METHOD'] . Yii::app()->controller->id;
-        if (!is_array($auth) || count($auth) != 3) {
-            return self::BAD_AUTH_HEADER;
-        }
-        $restToken = RestTokens::model()->findByAttributes(array('client_id'=>$auth[1])); // TODO: check if api_key is still active
-        $secret = $restToken->client_secret;
-        $hmac = $auth[2];
-        if(!Hmac::verify($hmac, $timestamp, $secret, $this->data, $resource)) {
-            return self::BAD_HMAC;
-        }
-
-        return self::OK;
     }
 
     // TODO: handle recursive JSON objects
