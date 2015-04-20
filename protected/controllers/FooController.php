@@ -1,6 +1,6 @@
 <?php
 
-class FooController extends ApiController
+class FooController extends HmacApiController
 {
 	/**
 	 * Declares class-based actions.

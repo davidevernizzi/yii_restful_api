@@ -1,11 +1,12 @@
 <?php
 
-class ApiController extends BaseApiController
+class HmacApiController extends BaseApiController
 {
     const OK = 0;
     const TIMEOUT = -1;
     const BAD_AUTH_HEADER = -2;
     const BAD_HMAC = -3;
+    const BAD_TOKEN = -4;
 
     private function getTimestamp($headers)
     {
@@ -38,6 +39,9 @@ class ApiController extends BaseApiController
             return self::BAD_AUTH_HEADER;
         }
         $restToken = RestTokens::model()->findByAttributes(array('client_id'=>$auth[1])); // TODO: check if api_key is still active
+        if ($restToken == null) {
+            return self::BAD_TOKEN;
+        }
         $secret = $restToken->client_secret;
         $hmac = $auth[2];
         if(!Hmac::verify($hmac, $timestamp, $secret, $this->data, $resource)) {
@@ -70,8 +74,12 @@ class ApiController extends BaseApiController
             echo ApiResponse::error('401', 'Unauthorized');
             return false;
             break;
+        case self::BAD_TOKEN:
+            echo ApiResponse::error('401', 'Unauthorized');
+            return false;
+            break;
         default:
-            echo ApiResponse::error('400', 'Bad Request');
+            echo ApiResponse::error('400', 'Bad Request (def 2)');
             return false;
         }
         

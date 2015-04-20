@@ -1,6 +1,6 @@
 <?php
 
-class BarController extends ApiController
+class BarController extends HmacApiController
 {
 	public function actionIndex()
 	{

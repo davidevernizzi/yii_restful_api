@@ -100,11 +100,21 @@ class ApiTest extends CDbTestCase  {
         $this->assertEquals($output, $expected_json);
     }
 
+    public function testAuthenticationAPI_KO_FakeToken()
+    {
+        $expected_json = '{"code":"401","error":"Unauthorized"}';
+        $timestamp = time();
+
+        $output = ApiCall::post('foo', '', array('Authorization' => 'hmac FAKEJOHN:FAKEHMAC', 'Timestamp' => $timestamp));
+
+        $this->assertEquals($output, $expected_json);
+    }
     public function testAuthenticationAPI_KO_FakeHmac()
     {
         $expected_json = '{"code":"401","error":"Unauthorized"}';
+        $timestamp = time();
 
-        $output = ApiCall::post('foo', '', array('Authorization' => 'hmac johndoe:FAKEHMAC', 'Timestamp' => '12345'));
+        $output = ApiCall::post('foo', '', array('Authorization' => 'hmac johndoe:FAKEHMAC', 'Timestamp' => $timestamp));
 
         $this->assertEquals($output, $expected_json);
     }
@@ -154,7 +164,6 @@ class ApiTest extends CDbTestCase  {
 
     public function testMockups()
     {
-
         $token = $this->tokens('token1');
 
         $timestamp = time();
@@ -176,6 +185,23 @@ class ApiTest extends CDbTestCase  {
         $auth = "hmac " . $token->client_id . ":$hmac";
         $expected_res = "BAR UPDATE\n";
         $output = ApiCall::put('bar', $params, array('Authorization' => $auth, 'Timestamp' => $timestamp));
+        $this->assertEquals($output, $expected_res);
+    }
+
+    public function testApiToken()
+    {
+        $token = $this->tokens('token1');
+
+        $timestamp = time();
+        $params = '';
+
+        $auth = "token " . $token->client_id . ":" . $token->client_secret;
+        $expected_res = "GET token";
+        $output = ApiCall::get('token', $params, array('Authorization' => $auth, 'Timestamp' => $timestamp));
+        $this->assertEquals($output, $expected_res);
+
+        $expected_res = '{"code":"501","error":"Not Implemented"}';
+        $output = ApiCall::post('token', $params, array('Authorization' => $auth, 'Timestamp' => $timestamp));
         $this->assertEquals($output, $expected_res);
     }
 
