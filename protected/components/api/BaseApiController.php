@@ -6,6 +6,8 @@ class BaseApiController extends Controller
     const TIMEOUT = -1;
     const BAD_AUTH_HEADER = -2;
     const BAD_HMAC = -3;
+    const BAD_TOKEN = -4;
+    const GENERIC_ERROR = -10;
 
     private $content;
     protected $data;
@@ -24,23 +26,23 @@ class BaseApiController extends Controller
         return $this->content;
     }
 
-    private function getHeaders()
+    // This must be implemented by the specific API
+    protected function getHeaders()
     {
-        $headers =  apache_request_headers();
-        if (!isset($headers['Authorization'])) {
-            return null;
-        }
-        if (!isset($headers['Timestamp'])) {
-            return null;
-        }
+        return null;
+    }
 
-        return $headers;
+    // This must be implemented by the specific API
+    protected function isAuthorised($headers)
+    {
+        return self::GENERIC_ERROR;
     }
 
     // TODO: handle recursive JSON objects
     // TODO: handle non-JSON API
     protected function beforeAction($action)
     {
+        // 1. Get request data
         switch($_SERVER['REQUEST_METHOD']) {
         case 'GET':
             $this->data = $_GET;
@@ -56,9 +58,39 @@ class BaseApiController extends Controller
             break;
         }
 
+        // 2. Get request headers -> by specific API
         $this->headers = $this->getHeaders();
         if ($this->headers == null) {
             echo ApiResponse::error('400', 'Bad Request');
+            return false;
+        }
+
+        // 3. Check authorization -> by specific API
+        switch ($this->isAuthorised($this->headers)) {
+        case self::OK:
+            break;
+        case self::TIMEOUT:
+            echo ApiResponse::error('401', 'Unauthorized');
+            return false;
+            break;
+        case self::BAD_AUTH_HEADER :
+            echo ApiResponse::error('400', 'Bad Request');
+            return false;
+            break;
+        case self::BAD_HMAC:
+            echo ApiResponse::error('401', 'Unauthorized');
+            return false;
+            break;
+        case self::BAD_TOKEN:
+            echo ApiResponse::error('401', 'Unauthorized');
+            return false;
+            break;
+        case self::GENERIC_ERROR:
+            echo ApiResponse::error('500', 'Internal Server Error');
+            return false;
+            break;
+        default:
+            echo ApiResponse::error('400', 'Bad Request (def 2)');
             return false;
         }
 

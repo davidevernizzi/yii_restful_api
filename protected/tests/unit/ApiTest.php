@@ -197,11 +197,11 @@ class ApiTest extends CDbTestCase  {
 
         $auth = "token " . $token->client_id . ":" . $token->client_secret;
         $expected_res = "GET token";
-        $output = ApiCall::get('token', $params, array('Authorization' => $auth, 'Timestamp' => $timestamp));
+        $output = ApiCall::get('token', $params, array('Authorization' => $auth));
         $this->assertEquals($output, $expected_res);
 
         $expected_res = '{"code":"501","error":"Not Implemented"}';
-        $output = ApiCall::post('token', $params, array('Authorization' => $auth, 'Timestamp' => $timestamp));
+        $output = ApiCall::post('token', $params, array('Authorization' => $auth));
         $this->assertEquals($output, $expected_res);
     }
 
