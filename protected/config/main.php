@@ -40,10 +40,12 @@ return array(
 		'urlManager'=>array(
 			'urlFormat'=>'path',
 			'rules'=>array(
+                /*
 				'<controller:\w+>/<id:\d+>'=>'<controller>/view',
 				'<controller:\w+>/<action:\w+>/<id:\d+>'=>'<controller>/<action>',
 				'<controller:\w+>/<action:\w+>'=>'<controller>/<action>',
-                array('<controller>/index', 'pattern'=> '<controller:\w+>/', 'verb' => 'GET'),
+                 */
+                array('<controller>/index', 'pattern'=> '<controller:\w+>/*', 'verb' => 'GET'),
                 array('<controller>/create', 'pattern'=> '<controller:\w+>/', 'verb' => 'POST'),
                 array('<controller>/update', 'pattern'=> '<controller:\w+>/', 'verb' => 'PUT'),
                 array('<controller>/delete', 'pattern'=> '<controller:\w+>/', 'verb' => 'DELETE'),
