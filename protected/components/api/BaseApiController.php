@@ -12,6 +12,7 @@ class BaseApiController extends Controller
     private $content;
     protected $data;
     protected $headers;
+    protected $isCrud = false;
 
     private function getContent()
     {
@@ -112,21 +113,52 @@ class BaseApiController extends Controller
 
 	public function actionIndex()
 	{
-        echo ApiResponse::error('501', 'Not Implemented');
+        if (!$this->isCrud) {
+            echo ApiResponse::error('501', 'Not Implemented');
+        }
+        else {
+            $model = new $this->isCrud();
+            $crud_models = $model->findAll();
+            foreach($crud_models as $model) {
+                $crud[] = $model->attributes;
+            }
+            echo json_encode($crud);
+        }
 	}
 
     public function actionCreate()
     {
-        echo ApiResponse::error('501', 'Not Implemented');
+        if (!$this->isCrud) {
+            echo ApiResponse::error('501', 'Not Implemented');
+        }
+        else {
+            $model = new $this->isCrud();
+            $data = json_decode($this->data, true);
+            $model->attributes = $data;
+            if (!$model->save()) {
+                echo ApiResponse::error('503', 'Internal server error');
+            }
+            else {
+                echo $model->id;
+            }
+        }
     }
 
     public function actionUpdate()
     {
-        echo ApiResponse::error('501', 'Not Implemented');
+        if (!$this->isCrud) {
+            echo ApiResponse::error('501', 'Not Implemented');
+        }
+        else {
+        }
     }
 
     public function actionDelete()
     {
-        echo ApiResponse::error('501', 'Not Implemented');
+        if (!$this->isCrud) {
+            echo ApiResponse::error('501', 'Not Implemented');
+        }
+        else {
+        }
     }
 }

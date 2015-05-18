@@ -12,7 +12,7 @@ return array(
 	// application components
 	'components'=>array(
 		'db'=>array(
-			'connectionString' => 'mysql:host=localhost;dbname=yii_restful_api_test',
+			'connectionString' => 'mysql:host=localhost;dbname=yii_restful_api',
 			'emulatePrepare' => true,
 			'username' => 'dave',
 			'password' => 'davep',
