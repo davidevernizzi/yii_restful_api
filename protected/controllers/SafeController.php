@@ -6,7 +6,6 @@ class SafeController extends SafeApiController
 
     public function actionIndex()
     {
-        echo 'GET';
-        print_r($_GET);
+        echo 'GET safe';
     }
 }

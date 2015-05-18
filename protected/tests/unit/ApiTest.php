@@ -1,6 +1,8 @@
 <?php
 
-class ApiCall {
+require_once('Util.php');
+
+class ApiCall3 {
     private static $apiUrl = 'http://192.168.56.101/yii_restful_api/index-test.php/';
 
     public static function get($resource, $payload='', $header='')
@@ -202,6 +204,19 @@ class ApiTest extends CDbTestCase  {
 
         $expected_res = '{"code":"501","error":"Not Implemented"}';
         $output = ApiCall::post('token', $params, array('Authorization' => $auth));
+        $this->assertEquals($output, $expected_res);
+    }
+
+    public function testSafeApi()
+    {
+        $params = '';
+
+        $expected_res = "GET safe";
+        $output = ApiCall::get('safe', $params, array());
+        $this->assertEquals($output, $expected_res);
+
+        $expected_res = '{"code":"501","error":"Not Implemented"}';
+        $output = ApiCall::post('safe', $params, array());
         $this->assertEquals($output, $expected_res);
     }
 
